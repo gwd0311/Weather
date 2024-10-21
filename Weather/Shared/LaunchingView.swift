@@ -8,7 +8,7 @@
 import SwiftUI
 import BaseKit
 
-struct ContentView: View {
+struct LaunchingView: View {
     var body: some View {
         VStack {
             Image(systemName: "globe")
@@ -21,5 +21,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    LaunchingView()
 }
