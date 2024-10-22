@@ -1,14 +1,13 @@
 import Foundation
 
-// MARK: - Response
-public struct WeatherForecastResponse: Codable {
-    let lat: Double
-    let lon: Double
-    let timezone: String
-    let timezoneOffset: Int
-    let current: CurrentWeatherData
-    let hourly: [HourlyWeatherData]
-    let daily: [DailyWeatherData]
+// MARK: - WeatherResponse
+public struct WeatherResponse: Codable, Sendable {
+    public let lat, lon: Double
+    public let timezone: String
+    public let timezoneOffset: Int
+    public let current: WeatherData
+    public let hourly: [WeatherData]
+    public let daily: [Daily]
 
     enum CodingKeys: String, CodingKey {
         case lat, lon, timezone
@@ -17,126 +16,113 @@ public struct WeatherForecastResponse: Codable {
     }
 }
 
-// MARK: - 현재날씨
-public struct CurrentWeatherData: Codable {
-    let dt: Int
-    let sunrise: Int
-    let sunset: Int
-    let temp: Double
-    let feelsLike: Double
-    let pressure: Int
-    let humidity: Int
-    let dewPoint: Double
-    let uvi: Double
-    let clouds: Int
-    let visibility: Int
-    let windSpeed: Double
-    let windDeg: Int
-    let windGust: Double?
-    let weather: [WeatherCondition]
-    let rain: RainVolume?
+// MARK: - WeatherData
+public struct WeatherData: Codable, Sendable {
+    public let dt: Int
+    public let sunrise, sunset: Int?
+    public let temp, feelsLike: Double
+    public let pressure, humidity: Int
+    public let dewPoint, uvi: Double
+    public let clouds, visibility: Int
+    public let windSpeed: Double
+    public let windDeg: Int
+    public let windGust: Double?
+    public let weather: [WeatherInfo]
+    public let rain: Rain?
+    public let pop: Double?
 
     enum CodingKeys: String, CodingKey {
-        case dt, sunrise, sunset, temp, pressure, humidity, dewPoint, uvi, clouds, visibility
+        case dt, sunrise, sunset, temp
         case feelsLike = "feels_like"
+        case pressure, humidity
+        case dewPoint = "dew_point"
+        case uvi, clouds, visibility
         case windSpeed = "wind_speed"
         case windDeg = "wind_deg"
         case windGust = "wind_gust"
-        case weather, rain
+        case weather, rain, pop
     }
 }
 
-// MARK: - 시간당 날씨
-public struct HourlyWeatherData: Codable {
-    let dt: Int
-    let temp: Double
-    let feelsLike: Double
-    let pressure: Int
-    let humidity: Int
-    let dewPoint: Double
-    let uvi: Double
-    let clouds: Int
-    let visibility: Int
-    let windSpeed: Double
-    let windDeg: Int
-    let windGust: Double?
-    let weather: [WeatherCondition]
-    let pop: Double
-    let rain: RainVolume?
+// MARK: - Rain
+public struct Rain: Codable, Sendable {
+    public let the1H: Double
 
     enum CodingKeys: String, CodingKey {
-        case dt, temp, pressure, humidity, dewPoint, uvi, clouds, visibility, pop
+        case the1H = "1h"
+    }
+}
+
+// MARK: - WeatherInfo
+public struct WeatherInfo: Codable, Sendable {
+    public let id: Int
+    public let main: Main
+    public let description: Description
+    public let icon: Icon
+}
+
+public enum Description: String, Codable, Sendable {
+    case brokenClouds = "broken clouds"
+    case clearSky = "clear sky"
+    case lightRain = "light rain"
+    case moderateRain = "moderate rain"
+    case overcastClouds = "overcast clouds"
+}
+
+public enum Icon: String, Codable, Sendable {
+    case the01D = "01d"
+    case the01N = "01n"
+    case the04D = "04d"
+    case the04N = "04n"
+    case the10D = "10d"
+    case the10N = "10n"
+}
+
+public enum Main: String, Codable, Sendable {
+    case clear = "Clear"
+    case clouds = "Clouds"
+    case rain = "Rain"
+}
+
+// MARK: - Daily
+public struct Daily: Codable, Sendable {
+    public let dt, sunrise, sunset, moonrise: Int
+    public let moonset: Int
+    public let moonPhase: Double
+    public let summary: String
+    public let temp: Temp
+    public let feelsLike: FeelsLike
+    public let pressure, humidity: Int
+    public let dewPoint, windSpeed: Double
+    public let windDeg: Int
+    public let windGust: Double
+    public let weather: [WeatherInfo]
+    public let clouds: Int
+    public let pop: Double
+    public let rain: Double?
+    public let uvi: Double
+
+    enum CodingKeys: String, CodingKey {
+        case dt, sunrise, sunset, moonrise, moonset
+        case moonPhase = "moon_phase"
+        case summary, temp
         case feelsLike = "feels_like"
+        case pressure, humidity
+        case dewPoint = "dew_point"
         case windSpeed = "wind_speed"
         case windDeg = "wind_deg"
         case windGust = "wind_gust"
-        case weather, rain
+        case weather, clouds, pop, rain, uvi
     }
 }
 
-// MARK: - 일간 날씨
-public struct DailyWeatherData: Codable {
-    let dt: Int
-    let sunrise: Int
-    let sunset: Int
-    let moonrise: Int
-    let moonset: Int
-    let moonPhase: Double
-    let summary: String
-    let temp: TemperatureData
-    let feelsLike: FeelsLikeTemperature
-    let pressure: Int
-    let humidity: Int
-    let dewPoint: Double
-    let windSpeed: Double
-    let windDeg: Int
-    let windGust: Double?
-    let weather: [WeatherCondition]
-    let clouds: Int
-    let pop: Double
-    let rain: Double?
-    let uvi: Double
-
-    enum CodingKeys: String, CodingKey {
-        case dt, sunrise, sunset, moonrise, moonset, moonPhase, summary
-        case temp, feelsLike, pressure, humidity, dewPoint, windSpeed, windDeg, windGust, weather, clouds, pop, rain, uvi
-    }
+// MARK: - FeelsLike
+public struct FeelsLike: Codable, Sendable {
+    public let day, night, eve, morn: Double
 }
 
-// MARK: - 온도
-public struct TemperatureData: Codable {
-    let day: Double
-    let min: Double
-    let max: Double
-    let night: Double
-    let eve: Double
-    let morn: Double
-}
-
-// MARK: - 체감온도
-public struct FeelsLikeTemperature: Codable {
-    let day: Double
-    let night: Double
-    let eve: Double
-    let morn: Double
-}
-
-// MARK: - 날씨상태
-public struct WeatherCondition: Codable {
-    let id: Int
-    let main: String
-    let description: String
-    let icon: String
-}
-
-// MARK: - 시간당 강수량
-public struct RainVolume: Codable {
-    let oneHour: Double?
-    let threeHours: Double?
-
-    enum CodingKeys: String, CodingKey {
-        case oneHour = "1h"
-        case threeHours = "3h"
-    }
+// MARK: - Temp
+public struct Temp: Codable, Sendable {
+    public let day, min, max, night, eve, morn: Double
 }
 

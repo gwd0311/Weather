@@ -8,11 +8,11 @@
 import Foundation
 
 enum RepositoryManager {
-    static let photoRepository: PhotoRepository = PhotoRepository()
+    static let weatherRepository: WeatherRepository = WeatherRepository()
 }
 
 extension RepositoryManager {
     static func clear() {
-        photoRepository.clear()
+        weatherRepository.clear()
     }
 }

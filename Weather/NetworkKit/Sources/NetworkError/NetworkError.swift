@@ -12,6 +12,7 @@ public enum NetworkError: Error {
     case decodingError(error: DecodingError)
     case networkingError(error: AppNetworkingError)
     case unknown
+    case unexpectedError(error: Error)
 }
 
 extension NetworkError: LocalizedError {
@@ -35,13 +36,19 @@ extension NetworkError: LocalizedError {
             }
         case .networkingError(let error):
             return error.localizedDescription
+        case .unexpectedError(error: let error):
+            return error.localizedDescription
         }
     }
     
     public static func from(_ error: Error) -> NetworkError {
         switch error {
+        case let networkError as AppNetworkingError:
+            return .networkingError(error: networkError)
+        case let decodingError as DecodingError:
+            return .decodingError(error: decodingError)
         default:
-            return .unknown
+            return .unexpectedError(error: error)
         }
     }
 }

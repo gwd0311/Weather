@@ -54,7 +54,7 @@ extension WeatherRequest: Requestable {
 }
 
 public protocol WeatherServiceProtocol: BaseServiceProtocol {
-    func getCurrentWeatherInfo(lat: Double, lon: Double) async -> Result<WeatherForecastResponse, NetworkError>
+    func getCurrentWeatherInfo(lat: Double, lon: Double) async -> Result<WeatherResponse, NetworkError>
 }
 
 public final class WeatherService: WeatherServiceProtocol {
@@ -70,20 +70,17 @@ public final class WeatherService: WeatherServiceProtocol {
         self.client = client
     }
     
-    public func getCurrentWeatherInfo(lat: Double, lon: Double) async -> Result<WeatherForecastResponse, NetworkError> {
-        
+    public func getCurrentWeatherInfo(lat: Double, lon: Double) async -> Result<WeatherResponse, NetworkError> {
+                
         let request: WeatherRequest = .getCurrentWeatherInfo(lat: lat, lon: lon, headers: headers)
         
         do {
             let data = try await client.send(request: request)
-            let response = try JSONDecoder().decode(BaseResponse<WeatherForecastResponse>.self, from: data)
+            let response = try JSONDecoder().decode(WeatherResponse.self, from: data)
             
-            if response.status, let responseData = response.data {
-                return .success(responseData)
-            } else {
-                return .failure(.generic(error: response.error))
-            }
+            return .success(response)
         } catch {
+            print("Error decoding JSON: \(error)")
             return .failure(NetworkError.from(error))
         }
     }

@@ -6,10 +6,14 @@
 //
 
 import Foundation
-//import PhotosKit
+import NetworkKit
 
 class ServiceManager {
     static let shared: ServiceManager = ServiceManager()
     
-//    private(set) lazy var photoService: PhotoServiceProtocol = PhotoService()
+    private(set) lazy var client: NetworkClient = {
+        NetworkClient()
+    }()
+    
+    private(set) lazy var weatherService: WeatherServiceProtocol = WeatherService(client: client)
 }

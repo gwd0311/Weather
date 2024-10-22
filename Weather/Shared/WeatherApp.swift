@@ -17,7 +17,7 @@ typealias BaseRepository = _BaseRepository<AppError>
 struct WeatherApp: App {
     var body: some Scene {
         WindowGroup {
-            LaunchingView()
+            MainView()
         }
     }
 }

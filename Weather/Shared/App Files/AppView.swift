@@ -13,7 +13,7 @@ struct AppView: View {
 
     var body: some View {
         BaseView(viewModel: viewModel) {
-            LaunchingView()
+            MainView()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification), perform: { _ in
 //            viewModel.requestPhotosAccess()
@@ -30,10 +30,10 @@ struct AppView_Previews: PreviewProvider {
 final class AppViewModel: BaseViewModel {
     @Published private(set) var isLaunching: Bool = true
 
-    private let photoRepository: PhotoRepository
+    private let photoRepository: WeatherRepository
         
     init(
-        photoRepository: PhotoRepository = RepositoryManager.photoRepository
+        photoRepository: WeatherRepository = RepositoryManager.weatherRepository
     ) {
         self.photoRepository = photoRepository
         super.init()

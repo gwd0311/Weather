@@ -57,7 +57,7 @@ public final class NetworkClient: RequestSendable {
         }
 
         print(httpResponse.statusCode)
-        print(data.debugDescription)
+        print(data.count)
 
         guard request.successStatusCodeRange.contains(httpResponse.statusCode) else {
             throw AppNetworkingError.responseError(urlString: request.urlString, data: data, status: httpResponse.statusCode)
