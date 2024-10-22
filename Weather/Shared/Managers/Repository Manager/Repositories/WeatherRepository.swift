@@ -13,6 +13,7 @@ import SwiftUI
 final class WeatherRepository: BaseRepository {
     
     @Published private(set) var currentWeather: WeatherData? = nil
+    @Published private(set) var dailyWeathers: [DailyWeatherData] = []
     
     private let weatherService: WeatherServiceProtocol
     
@@ -40,12 +41,12 @@ extension WeatherRepository {
             switch result {
             case .success(let data):
                 self.currentWeather = data.current
+                self.dailyWeathers = data.daily
                 print(currentWeather?.weather.description ?? "sdf")
                 self.setIsLoading(false)
             case .failure:
                 self.setIsLoading(false)
             }
-            
         }
     }
     

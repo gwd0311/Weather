@@ -7,7 +7,7 @@ public struct WeatherResponse: Codable, Sendable {
     public let timezoneOffset: Int
     public let current: WeatherData
     public let hourly: [WeatherData]
-    public let daily: [Daily]
+    public let daily: [DailyWeatherData]
 
     enum CodingKeys: String, CodingKey {
         case lat, lon, timezone
@@ -56,36 +56,75 @@ public struct Rain: Codable, Sendable {
 // MARK: - WeatherInfo
 public struct WeatherInfo: Codable, Sendable {
     public let id: Int
-    public let main: Main
-    public let description: Description
-    public let icon: Icon
+    public let main: WeatherDescription
+    public let description: WeatherDetailDescription
+    public let icon: IconInfo
 }
 
-public enum Description: String, Codable, Sendable {
-    case brokenClouds = "broken clouds"
-    case clearSky = "clear sky"
-    case lightRain = "light rain"
-    case moderateRain = "moderate rain"
-    case overcastClouds = "overcast clouds"
-}
-
-public enum Icon: String, Codable, Sendable {
-    case the01D = "01d"
-    case the01N = "01n"
-    case the04D = "04d"
-    case the04N = "04n"
-    case the10D = "10d"
-    case the10N = "10n"
-}
-
-public enum Main: String, Codable, Sendable {
+public enum WeatherDescription: String, Codable, Sendable {
     case clear = "Clear"
     case clouds = "Clouds"
     case rain = "Rain"
+    case drizzle = "Drizzle"
+    case thunderstorm = "Thunderstorm"
+    case snow = "Snow"
+    case mist = "Mist"
+    
+    public var description: String {
+        switch self {
+            case .clear: return "맑음"
+            case .clouds: return "흐림"
+            case .rain: return "비"
+            case .drizzle: return "이슬비"
+            case .thunderstorm: return "뇌우"
+            case .snow: return "눈"
+            case .mist: return "안개"
+        }
+    }
 }
 
-// MARK: - Daily
-public struct Daily: Codable, Sendable {
+public enum WeatherDetailDescription: String, Codable, Sendable {
+    case brokenClouds = "broken clouds"
+    case clearSky = "clear sky"
+    case fewClouds = "few clouds: 11-25%"
+    case scatteredClouds = "scattered clouds: 25-50%"
+    case overcastClouds = "overcast clouds"
+    case lightRain = "light rain"
+    case moderateRain = "moderate rain"
+    case heavyRain = "heavy intensity rain"
+    case extremeRain = "extreme rain"
+    case thunderstorm = "thunderstorm"
+    case drizzle = "drizzle"
+    case lightSnow = "light snow"
+    case heavySnow = "heavy snow"
+    case mist = "mist"
+    case fog = "fog"
+}
+
+public enum IconInfo: String, Codable, Sendable {
+    case the01D = "01d"
+    case the01N = "01n"
+    case the02D = "02d"
+    case the02N = "02n"
+    case the03D = "03d"
+    case the03N = "03n"
+    case the04D = "04d"
+    case the04N = "04n"
+    case the09D = "09d"
+    case the09N = "09n"
+    case the10D = "10d"
+    case the10N = "10n"
+    case the11D = "11d"
+    case the11N = "11n"
+    case the13D = "13d"
+    case the13N = "13n"
+    case the50D = "50d"
+    case the50N = "50n"
+}
+
+
+// MARK: - DailyWeatherData
+public struct DailyWeatherData: Codable, Sendable {
     public let dt, sunrise, sunset, moonrise: Int
     public let moonset: Int
     public let moonPhase: Double

@@ -16,4 +16,8 @@ public extension View {
             self
         }
     }
+    
+    func fontSized(_ size: CGFloat) -> some View {
+        self.font(.system(size: size))
+    }
 }

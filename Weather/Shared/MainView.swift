@@ -13,16 +13,29 @@ struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
     
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        ZStack {
+            Color.theme.backgroundColor
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                Text(viewModel.cityName)
+                    .foregroundColor(.white)
+                    .fontSized(40)
+                    .padding(.bottom, 4)
+                Text(viewModel.tempDescription)
+                    .foregroundColor(.white)
+                    .fontSized(70)
+                    .fontWeight(.medium)
+                    .padding(.bottom, 2)
+                Text(viewModel.weatherDescription)
+                    .foregroundColor(.white)
+                    .fontSized(35)
+                
+            }
         }
-        .onAppear {
+        .onAppear() {
             viewModel.onAppear()
         }
-        .padding()
     }
 }
 
@@ -30,19 +43,24 @@ struct MainView: View {
 final class MainViewModel: BaseViewModel {
     
     @Published private(set) var currentWeather: WeatherData? = nil
+    @Published private(set) var dailyWeathers: [DailyWeatherData] = []
     
     private let weatherRepository: WeatherRepository
     
     init(_ weatherRepository: WeatherRepository = RepositoryManager.weatherRepository) {
         self.weatherRepository = weatherRepository
         super.init()
+        configure()
     }
     
     override func configure() {
-        weatherRepository.$isLoading
-            .assign(to: &$isLoading)
         weatherRepository.$currentWeather
+            .receive(on: DispatchQueue.main)
             .assign(to: &$currentWeather)
+        
+        weatherRepository.$isLoading
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$isLoading)
     }
     
     override func handleError(_ error: AppError) {
@@ -54,6 +72,29 @@ final class MainViewModel: BaseViewModel {
             handleError(appError)
         } else {
             handleError(.unknown)
+        }
+    }
+}
+
+// MARK: - Computed Properties
+extension MainViewModel {
+    
+#warning("도시이름 파싱하고 변경하기")
+    var cityName: String {
+        "Seoul"
+    }
+    
+    /// 현재 기온
+    var weatherDescription: String {
+        currentWeather?.weather.first?.main.description ?? "날씨 정보 없음"
+    }
+    
+    /// 현재 날씨상태
+    var tempDescription: String {
+        if let temp = currentWeather?.temp {
+            return "\(Int(temp - 273.15))°"
+        } else {
+            return "-"
         }
     }
 }
