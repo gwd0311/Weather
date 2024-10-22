@@ -1,140 +1,142 @@
-//
-//  File.swift
-//  NetworkKit
-//
-//  Created by hanjongwoo on 10/21/24.
-//
-
 import Foundation
 
-// MARK: - 날씨예보 Response
-struct ForecastResponse: Codable {
-    let cod: String
-    let message: Int
-    let cnt: Int
-    let list: [WeatherData]
-    let city: CityInfo
-}
-
-// MARK: - 날씨 데이터
-struct WeatherData: Codable {
-    let dt: Int
-    let main: WeatherDetail
-    let weather: [WeatherCondition]
-    let clouds: CloudInfo
-    let wind: WindInfo
-    let visibility: Int
-    let pop: Double
-    let rain: RainInfo?
-    let sys: SysInfo
-    let dtTxt: String
+// MARK: - Response
+public struct WeatherForecastResponse: Codable {
+    let lat: Double
+    let lon: Double
+    let timezone: String
+    let timezoneOffset: Int
+    let current: CurrentWeatherData
+    let hourly: [HourlyWeatherData]
+    let daily: [DailyWeatherData]
 
     enum CodingKeys: String, CodingKey {
-        case dt, main, weather, clouds, wind, visibility, pop, rain, sys
-        case dtTxt = "dt_txt"
+        case lat, lon, timezone
+        case timezoneOffset = "timezone_offset"
+        case current, hourly, daily
     }
 }
 
-// MARK: - 현재날씨 Response
-struct CurrentWeatherResponse: Codable {
-    let coord: Coordinate
-    let weather: [WeatherCondition]
-    let base: String
-    let main: WeatherDetail
-    let visibility: Int
-    let wind: WindInfo
-    let rain: RainInfo?
-    let clouds: CloudInfo
+// MARK: - 현재날씨
+public struct CurrentWeatherData: Codable {
     let dt: Int
-    let sys: SystemInfo
-    let timezone: Int
-    let id: Int
-    let name: String
-    let cod: Int
-}
-
-// MARK: - 날씨 세부정보
-struct WeatherDetail: Codable {
+    let sunrise: Int
+    let sunset: Int
     let temp: Double
     let feelsLike: Double
-    let tempMin: Double
-    let tempMax: Double
     let pressure: Int
     let humidity: Int
-    let seaLevel: Int?
-    let grndLevel: Int?
-    let tempKf: Double?
+    let dewPoint: Double
+    let uvi: Double
+    let clouds: Int
+    let visibility: Int
+    let windSpeed: Double
+    let windDeg: Int
+    let windGust: Double?
+    let weather: [WeatherCondition]
+    let rain: RainVolume?
 
     enum CodingKeys: String, CodingKey {
-        case temp, pressure, humidity
+        case dt, sunrise, sunset, temp, pressure, humidity, dewPoint, uvi, clouds, visibility
         case feelsLike = "feels_like"
-        case tempMin = "temp_min"
-        case tempMax = "temp_max"
-        case seaLevel = "sea_level"
-        case grndLevel = "grnd_level"
-        case tempKf = "temp_kf"
+        case windSpeed = "wind_speed"
+        case windDeg = "wind_deg"
+        case windGust = "wind_gust"
+        case weather, rain
     }
+}
+
+// MARK: - 시간당 날씨
+public struct HourlyWeatherData: Codable {
+    let dt: Int
+    let temp: Double
+    let feelsLike: Double
+    let pressure: Int
+    let humidity: Int
+    let dewPoint: Double
+    let uvi: Double
+    let clouds: Int
+    let visibility: Int
+    let windSpeed: Double
+    let windDeg: Int
+    let windGust: Double?
+    let weather: [WeatherCondition]
+    let pop: Double
+    let rain: RainVolume?
+
+    enum CodingKeys: String, CodingKey {
+        case dt, temp, pressure, humidity, dewPoint, uvi, clouds, visibility, pop
+        case feelsLike = "feels_like"
+        case windSpeed = "wind_speed"
+        case windDeg = "wind_deg"
+        case windGust = "wind_gust"
+        case weather, rain
+    }
+}
+
+// MARK: - 일간 날씨
+public struct DailyWeatherData: Codable {
+    let dt: Int
+    let sunrise: Int
+    let sunset: Int
+    let moonrise: Int
+    let moonset: Int
+    let moonPhase: Double
+    let summary: String
+    let temp: TemperatureData
+    let feelsLike: FeelsLikeTemperature
+    let pressure: Int
+    let humidity: Int
+    let dewPoint: Double
+    let windSpeed: Double
+    let windDeg: Int
+    let windGust: Double?
+    let weather: [WeatherCondition]
+    let clouds: Int
+    let pop: Double
+    let rain: Double?
+    let uvi: Double
+
+    enum CodingKeys: String, CodingKey {
+        case dt, sunrise, sunset, moonrise, moonset, moonPhase, summary
+        case temp, feelsLike, pressure, humidity, dewPoint, windSpeed, windDeg, windGust, weather, clouds, pop, rain, uvi
+    }
+}
+
+// MARK: - 온도
+public struct TemperatureData: Codable {
+    let day: Double
+    let min: Double
+    let max: Double
+    let night: Double
+    let eve: Double
+    let morn: Double
+}
+
+// MARK: - 체감온도
+public struct FeelsLikeTemperature: Codable {
+    let day: Double
+    let night: Double
+    let eve: Double
+    let morn: Double
 }
 
 // MARK: - 날씨상태
-struct WeatherCondition: Codable {
+public struct WeatherCondition: Codable {
     let id: Int
     let main: String
     let description: String
     let icon: String
 }
 
-// MARK: - 구름정보
-struct CloudInfo: Codable {
-    let all: Int
-}
-
-// MARK: - 바람정보
-struct WindInfo: Codable {
-    let speed: Double
-    let deg: Int
-    let gust: Double?
-}
-
-// MARK: - 강수정보 (시간당 강수량)
-struct RainInfo: Codable {
+// MARK: - 시간당 강수량
+public struct RainVolume: Codable {
     let oneHour: Double?
-    let threeHour: Double?
+    let threeHours: Double?
 
     enum CodingKeys: String, CodingKey {
         case oneHour = "1h"
-        case threeHour = "3h"
+        case threeHours = "3h"
     }
 }
 
-// MARK: - 주간/야간 정보
-struct SysInfo: Codable {
-    let pod: String    // d: 주간, n: 야간
-}
-
-// MARK: - 일출/일몰 정보
-struct SystemInfo: Codable {
-    let type: Int
-    let id: Int
-    let country: String
-    let sunrise: Int
-    let sunset: Int
-}
-
-// MARK: - 도시정보
-struct CityInfo: Codable {
-    let id: Int
-    let name: String
-    let coord: Coordinate
-    let country: String
-    let population: Int
-    let timezone: Int
-    let sunrise: Int
-    let sunset: Int
-}
-
-// MARK: - 좌표
-struct Coordinate: Codable {
-    let lon: Double
-    let lat: Double
-}

@@ -54,10 +54,11 @@ extension WeatherRequest: Requestable {
 }
 
 public protocol WeatherServiceProtocol: BaseServiceProtocol {
-    func getCurrentWeatherInfo() async -> Result<CurrentWeatherResponse, AppError>
+    func getCurrentWeatherInfo(lat: Double, lon: Double) async -> Result<WeatherForecastResponse, NetworkError>
 }
 
 public final class WeatherService: WeatherServiceProtocol {
+    
     private let client: RequestSendable
     private let locationManager = CLLocationManager()
 
@@ -67,5 +68,23 @@ public final class WeatherService: WeatherServiceProtocol {
     
     public init(client: RequestSendable) {
         self.client = client
+    }
+    
+    public func getCurrentWeatherInfo(lat: Double, lon: Double) async -> Result<WeatherForecastResponse, NetworkError> {
+        
+        let request: WeatherRequest = .getCurrentWeatherInfo(lat: lat, lon: lon, headers: headers)
+        
+        do {
+            let data = try await client.send(request: request)
+            let response = try JSONDecoder().decode(BaseResponse<WeatherForecastResponse>.self, from: data)
+            
+            if response.status, let responseData = response.data {
+                return .success(responseData)
+            } else {
+                return .failure(.generic(error: response.error))
+            }
+        } catch {
+            return .failure(NetworkError.from(error))
+        }
     }
 }
