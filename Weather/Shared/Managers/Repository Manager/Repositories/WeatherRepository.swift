@@ -42,7 +42,7 @@ extension WeatherRepository {
             case .success(let data):
                 self.currentWeather = data.current
                 self.dailyWeathers = data.daily
-                print(currentWeather?.weather.description ?? "sdf")
+                print(dailyWeathers.first?.temp.max)
                 self.setIsLoading(false)
             case .failure:
                 self.setIsLoading(false)
