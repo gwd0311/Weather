@@ -8,28 +8,25 @@
 import SwiftUI
 
 struct TemperatureBoard: View {
-    let cityName: String
-    let tempDescription: String
-    let weatherDescription: String
-    let maxTempDescription: String
-    let minTempDescription: String
+    
+    @StateObject var viewModel: MainViewModel
 
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 2) {
-                Text(cityName)
+                Text(viewModel.cityName)
                     .fontSized(40)
                     .padding(.bottom, 2)
-                Text(tempDescription)
+                Text(viewModel.tempDescription)
                     .fontSized(70)
-                Text(weatherDescription)
+                Text(viewModel.weatherDescription)
                     .fontSized(35)
             }
             .foregroundColor(.white)
             HStack(spacing: 10) {
-                Text(maxTempDescription)
+                Text(viewModel.maxTempDescription)
                 Text("|")
-                Text(minTempDescription)
+                Text(viewModel.minTempDescription)
             }
             .foregroundColor(.white)
         }

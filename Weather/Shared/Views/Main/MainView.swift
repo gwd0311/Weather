@@ -17,21 +17,12 @@ struct MainView: View {
         ZStack {
             Color.theme.backgroundColor
                 .ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                TemperatureBoard(
-                    cityName: viewModel.cityName,
-                    tempDescription: viewModel.tempDescription,
-                    weatherDescription: viewModel.weatherDescription,
-                    maxTempDescription: viewModel.maxTempDescription,
-                    minTempDescription: viewModel.minTempDescription
-                )
-                HourlyForecastBoard(
-                    hourlyIndices: viewModel.hourlyIndices,
-                    hourlyTimes: viewModel.hourlyTimes,
-                    hourlyWeatherIcon: viewModel.hourlyWeatherIcon,
-                    hourlyTemparatures: viewModel.hourlyTemparatures
-                )
+            ScrollView(showsIndicators: false) {
+                LazyVStack(spacing: 0) {
+                    TemperatureBoard(viewModel: viewModel)
+                    HourlyForecastBoard(viewModel: viewModel)
+                    FiveDaysForecast(viewModel: viewModel)
+                }
             }
         }
         .onAppear() {
@@ -42,7 +33,7 @@ struct MainView: View {
 
 // MARK: - private View
 extension MainView {
-    
+
 }
 
 // MARK: - ViewModel
@@ -94,6 +85,7 @@ final class MainViewModel: BaseViewModel {
 // MARK: - Computed Properties
 extension MainViewModel {
     
+    // MARK: - TemperatureBoard
 #warning("도시이름 파싱하고 변경하기")
     var cityName: String {
         "Seoul"
@@ -131,6 +123,17 @@ extension MainViewModel {
         }
     }
     
+    // MARK: - HourlyForecastBoard
+    
+    /// 최대풍속
+    var maxWindSpeed: String {
+        if let windSpeed = currentWeather?.windSpeed {
+            return "\(Int(windSpeed))"
+        } else {
+            return "-"
+        }
+    }
+    
     /// 3시간별 인덱스
     var hourlyIndices: [Int] {
         Array(stride(from: 0, to: hourlyWeathers.count, by: 3))
@@ -149,6 +152,27 @@ extension MainViewModel {
     /// 시간별 기온
     var hourlyTemparatures: [String] {
         hourlyWeathers.map { $0.temp.kelvinToCelsius.description }
+    }
+    
+    // MARK: - FiveDayForcastBoard
+    /// 요일 제목
+    var dayTitles: [String] {
+        dailyWeathers.map { $0.dt.dayOfWeek }
+    }
+    
+    /// 요일 기후 아이콘
+    var dayIcon: [String] {
+        dailyWeathers.map { $0.weather.first?.icon.rawValue ?? "-" }
+    }
+    
+    /// 요일 최대온도
+    var dayMaxTemp: [String] {
+        dailyWeathers.map { $0.temp.max.kelvinToCelsius.description }
+    }
+    
+    /// 요일 최저온도
+    var dayMinTemp: [String] {
+        dailyWeathers.map { $0.temp.min.kelvinToCelsius.description }
     }
 }
 

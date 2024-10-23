@@ -18,9 +18,10 @@ struct HourlyItemView: View {
                 .font(.subheadline)
             Image(icon)
                 .font(.largeTitle)
-            Text(temperature)
+            Text("\(temperature)°")
                 .font(.headline)
         }
+        .foregroundStyle(.white)
         .padding(.horizontal, 8)
     }
 }

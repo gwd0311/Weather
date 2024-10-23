@@ -23,5 +23,13 @@ extension Int {
         dateFormatter.locale = Locale(identifier: "ko_KR")
         return dateFormatter.string(from: date)
     }
+    
+    public var dayOfWeek: String {
+        let date = Date(timeIntervalSince1970: TimeInterval(self))
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "E"
+        dateFormatter.locale = Locale(identifier: "ko_KR")
+        return dateFormatter.string(from: date)
+    }
 }
 

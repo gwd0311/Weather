@@ -42,9 +42,8 @@ extension WeatherRepository {
             switch result {
             case .success(let data):
                 self.currentWeather = data.current
-                self.dailyWeathers = data.daily
+                self.dailyWeathers = Array(data.daily[0..<5])
                 self.hourlyWeathers = data.hourly
-                print(hourlyWeathers.map { $0.dt.toFormattedTime } )
                 self.setIsLoading(false)
             case .failure:
                 self.setIsLoading(false)
