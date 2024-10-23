@@ -14,6 +14,7 @@ final class WeatherRepository: BaseRepository {
     
     @Published private(set) var currentWeather: WeatherData? = nil
     @Published private(set) var dailyWeathers: [DailyWeatherData] = []
+    @Published private(set) var hourlyWeathers: [WeatherData] = []
     
     private let weatherService: WeatherServiceProtocol
     
@@ -42,7 +43,8 @@ extension WeatherRepository {
             case .success(let data):
                 self.currentWeather = data.current
                 self.dailyWeathers = data.daily
-                print(dailyWeathers.first?.temp.max)
+                self.hourlyWeathers = data.hourly
+                print(hourlyWeathers.map { $0.dt.toFormattedTime } )
                 self.setIsLoading(false)
             case .failure:
                 self.setIsLoading(false)

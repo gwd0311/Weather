@@ -9,6 +9,7 @@ import SwiftUI
 import NetworkKit
 import BaseKit
 
+// MARK: - View
 struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
     
@@ -28,7 +29,9 @@ struct MainView: View {
     }
 }
 
+// MARK: - private View
 extension MainView {
+    /// 최상단 기온 보드
     private var temperatureBoard: some View {
         VStack(spacing: 0) {
             VStack(spacing: 2) {
@@ -50,6 +53,7 @@ extension MainView {
         }
     }
     
+    /// 2번째 시간별 기온 보드
     private var hourlyForecastBoard: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("돌풍의 풍속은 최대 4m/s 입니다.")
@@ -59,22 +63,23 @@ extension MainView {
             Rectangle()
                 .foregroundStyle(Color.theme.lineColor)
                 .frame(height: 1)
+                .padding(.bottom, 8)
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    ForEach(1..<14, id: \.self) { hour in
+                LazyHStack(spacing: 0) {
+                    ForEach(viewModel.hourlyIndices, id: \.self) { idx in
                         VStack(spacing: 4) {
-                            Text(hour == 1 ? "지금" : "\(hour)시간 후")
+                            Text(idx == 0 ? "지금" : "\(viewModel.hourlyTimes[idx])")
                                 .font(.subheadline)
-                            Image(systemName: "sun.max.fill")
+                            Image(viewModel.hourlyWeatherIcon[idx])
                                 .font(.largeTitle)
-                            Text("\(Int.random(in: -10...5))°")
+                            Text("\(viewModel.hourlyTemparatures[idx])°")
                                 .font(.headline)
                         }
-                        .offset(x: -20)
-                        .padding()
+                        .padding(.horizontal, 8)
                     }
                 }
-                .padding(.horizontal)
+                .frame(height: 100)
+                .padding(.horizontal, 0)
             }
         }
         .padding()
@@ -89,6 +94,7 @@ final class MainViewModel: BaseViewModel {
     
     @Published private(set) var currentWeather: WeatherData? = nil
     @Published private(set) var dailyWeathers: [DailyWeatherData] = []
+    @Published private(set) var hourlyWeathers: [WeatherData] = []
     
     private let weatherRepository: WeatherRepository
     
@@ -103,7 +109,12 @@ final class MainViewModel: BaseViewModel {
             .receive(on: DispatchQueue.main)
             .assign(to: &$currentWeather)
         
+        weatherRepository.$hourlyWeathers
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$hourlyWeathers)
+        
         weatherRepository.$dailyWeathers
+            .receive(on: DispatchQueue.main)
             .assign(to: &$dailyWeathers)
         
         weatherRepository.$isLoading
@@ -140,7 +151,7 @@ extension MainViewModel {
     /// 현재 날씨상태
     var tempDescription: String {
         if let temp = currentWeather?.temp {
-            return "\(Int(temp - 273.15))°"
+            return "\(temp.kelvinToCelsius)°"
         } else {
             return "-"
         }
@@ -149,7 +160,7 @@ extension MainViewModel {
     /// 최고기온
     var maxTempDescription: String {
         if let maxTemp = dailyWeathers.first?.temp.max {
-            return "최고: \(Int(maxTemp - 273.15))°"
+            return "최고: \(maxTemp.kelvinToCelsius)°"
         } else {
             return "-"
         }
@@ -158,10 +169,30 @@ extension MainViewModel {
     /// 최저기온
     var minTempDescription: String {
         if let minTemp = dailyWeathers.first?.temp.min {
-            return "최저: \(Int(minTemp - 273.15))°"
+            return "최저: \(minTemp.kelvinToCelsius)°"
         } else {
             return "-"
         }
+    }
+    
+    /// 3시간별 인덱스
+    var hourlyIndices: [Int] {
+        Array(stride(from: 0, to: hourlyWeathers.count, by: 3))
+    }
+    
+    /// 시간별 시각
+    var hourlyTimes: [String] {
+        hourlyWeathers.map { $0.dt.toFormattedTime }
+    }
+    
+    /// 시간별 날씨 아이콘
+    var hourlyWeatherIcon: [String] {
+        hourlyWeathers.map { $0.weather.first?.icon.rawValue ?? "-" }
+    }
+    
+    /// 시간별 기온
+    var hourlyTemparatures: [String] {
+        hourlyWeathers.map { $0.temp.kelvinToCelsius.description }
     }
 }
 

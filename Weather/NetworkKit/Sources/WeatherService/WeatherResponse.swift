@@ -69,6 +69,13 @@ public enum WeatherDescription: String, Codable, Sendable {
     case thunderstorm = "Thunderstorm"
     case snow = "Snow"
     case mist = "Mist"
+    case haze = "Haze"
+    case fog = "Fog"
+    case dust = "Dust"
+    case ash = "Ash"
+    case squall = "Squall"
+    case tornado = "Tornado"
+    case sand = "Sand"
     
     public var description: String {
         switch self {
@@ -79,27 +86,81 @@ public enum WeatherDescription: String, Codable, Sendable {
             case .thunderstorm: return "뇌우"
             case .snow: return "눈"
             case .mist: return "안개"
+            case .haze: return "안개"
+            case .fog: return "안개"
+            case .dust: return "먼지"
+            case .ash: return "먼지"
+            case .squall: return "소나기"
+            case .tornado: return "태풍"
+            case .sand: return "먼지"
         }
     }
 }
 
 public enum WeatherDetailDescription: String, Codable, Sendable {
-    case brokenClouds = "broken clouds"
-    case clearSky = "clear sky"
-    case fewClouds = "few clouds: 11-25%"
-    case scatteredClouds = "scattered clouds: 25-50%"
-    case overcastClouds = "overcast clouds"
+    case thunderstormWithLightRain = "thunderstorm with light rain"
+    case thunderstormWithRain = "thunderstorm with rain"
+    case thunderstormWithHeavyRain = "thunderstorm with heavy rain"
+    case lightThunderstorm = "light thunderstorm"
+    case thunderstorm = "thunderstorm"
+    case heavyThunderstorm = "heavy thunderstorm"
+    case raggedThunderstorm = "ragged thunderstorm"
+    case thunderstormWithLightDrizzle = "thunderstorm with light drizzle"
+    case thunderstormWithDrizzle = "thunderstorm with drizzle"
+    case thunderstormWithHeavyDrizzle = "thunderstorm with heavy drizzle"
+
+    case lightIntensityDrizzle = "light intensity drizzle"
+    case drizzle = "drizzle"
+    case heavyIntensityDrizzle = "heavy intensity drizzle"
+    case lightIntensityDrizzleRain = "light intensity drizzle rain"
+    case drizzleRain = "drizzle rain"
+    case heavyIntensityDrizzleRain = "heavy intensity drizzle rain"
+    case showerRainAndDrizzle = "shower rain and drizzle"
+    case heavyShowerRainAndDrizzle = "heavy shower rain and drizzle"
+    case showerDrizzle = "shower drizzle"
+    
     case lightRain = "light rain"
     case moderateRain = "moderate rain"
-    case heavyRain = "heavy intensity rain"
+    case heavyIntensityRain = "heavy intensity rain"
+    case veryHeavyRain = "very heavy rain"
     case extremeRain = "extreme rain"
-    case thunderstorm = "thunderstorm"
-    case drizzle = "drizzle"
+    case freezingRain = "freezing rain"
+    case lightIntensityShowerRain = "light intensity shower rain"
+    case showerRain = "shower rain"
+    case heavyIntensityShowerRain = "heavy intensity shower rain"
+    case raggedShowerRain = "ragged shower rain"
+
     case lightSnow = "light snow"
+    case snow = "snow"
     case heavySnow = "heavy snow"
+    case sleet = "sleet"
+    case lightShowerSleet = "light shower sleet"
+    case showerSleet = "shower sleet"
+    case lightRainAndSnow = "light rain and snow"
+    case rainAndSnow = "rain and snow"
+    case lightShowerSnow = "light shower snow"
+    case showerSnow = "shower snow"
+    case heavyShowerSnow = "heavy shower snow"
+
     case mist = "mist"
+    case smoke = "smoke"
+    case haze = "haze"
+    case dust = "dust"
+    case sandDustWhirls = "sand/dust whirls"
     case fog = "fog"
+    case sand = "sand"
+    case volcanicAsh = "volcanic ash"
+    case squalls = "squalls"
+    case tornado = "tornado"
+
+    case clearSky = "clear sky"
+
+    case fewClouds = "few clouds"
+    case scatteredClouds = "scattered clouds"
+    case brokenClouds = "broken clouds"
+    case overcastClouds = "overcast clouds"
 }
+
 
 public enum IconInfo: String, Codable, Sendable {
     case the01D = "01d"
