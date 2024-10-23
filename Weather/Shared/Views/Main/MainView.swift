@@ -8,6 +8,7 @@
 import SwiftUI
 import NetworkKit
 import BaseKit
+import MapKit
 
 // MARK: - View
 struct MainView: View {
@@ -22,6 +23,8 @@ struct MainView: View {
                     TemperatureBoard(viewModel: viewModel)
                     HourlyForecastBoard(viewModel: viewModel)
                     FiveDaysForecast(viewModel: viewModel)
+                    WeatherMapBoard(lat: 36, lon: 127)
+                    
                 }
             }
         }
@@ -181,6 +184,7 @@ extension MainViewModel {
     
     func onAppear() {
         weatherRepository.fetchWeatherData(lat: 36.77, lon: 127.37)
+        CLLocationManager().requestWhenInUseAuthorization()
     }
     
 }
