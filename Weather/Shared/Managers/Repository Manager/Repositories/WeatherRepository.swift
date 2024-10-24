@@ -11,7 +11,7 @@ import SwiftUI
 
 final class WeatherRepository: BaseRepository {
     
-    @Published private(set) var selectedCity: City = .seoul
+    @Published private(set) var selectedCity: City = .asan
     @Published private(set) var currentWeather: WeatherData? = nil
     
     @Published private(set) var dailyWeathers: [DailyWeatherData] = []

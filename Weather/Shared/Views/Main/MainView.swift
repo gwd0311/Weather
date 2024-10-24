@@ -49,7 +49,7 @@ extension MainView {
 // MARK: - ViewModel
 final class MainViewModel: BaseViewModel {
     
-    @Published private(set) var selectedCity: City = .seoul
+    @Published private(set) var selectedCity: City = .asan
     @Published private(set) var currentWeather: WeatherData? = nil
     
     @Published private(set) var dailyWeathers: [DailyWeatherData] = []
@@ -217,7 +217,7 @@ extension MainViewModel {
     
     /// 기압
     var pressure: String {
-        currentWeather?.pressure.description ?? "-"
+        currentWeather?.pressure.formattedWithCommas ?? "-"
     }
 }
 

@@ -9,55 +9,23 @@ import SwiftUI
 
 struct SearchView: View {
     
-    @StateObject var viewModel: SearchViewModel = SearchViewModel()
-
-    @State private var searchText: String = ""
-    
-    let cities = [
-        City(id: 1, name: "Seoul", country: "KR", coord: Coord(lon: 127.97, lat: 36.56)),
-        City(id: 2, name: "Tokyo", country: "JP", coord: Coord(lon: 139.76, lat: 35.68)),
-        City(id: 3, name: "New York", country: "US", coord: Coord(lon: -74.01, lat: 40.71)),
-        City(id: 4, name: "London", country: "GB", coord: Coord(lon: -0.12, lat: 51.51)),
-        City(id: 5, name: "Paris", country: "FR", coord: Coord(lon: 2.35, lat: 48.85)),
-        City(id: 6, name: "Moscow", country: "RU", coord: Coord(lon: 37.61, lat: 55.75)),
-        City(id: 7, name: "Berlin", country: "DE", coord: Coord(lon: 13.40, lat: 52.52))
-    ]
+    @StateObject private var viewModel = SearchViewModel()
+    @FocusState private var isTextFieldFocused: Bool
     
     var body: some View {
         BaseView(viewModel: viewModel) {
             VStack(spacing: 0) {
-                SearchBar(searchText: $searchText)
-                
-                ScrollView {
-                    LazyVStack {
-                        ForEach(cities, id: \.self) { city in
-                            VStack(alignment: .leading ,spacing: 0) {
-                                Group {
-                                    Text(city.name)
-                                        .font(.headline)
-                                        .padding(.bottom, 2)
-                                    Text(city.country)
-                                        .font(.subheadline)
-                                }
-                                .foregroundStyle(.white)
-                                .padding(.bottom, 12)
-                                LineDivider()
-                            }
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                withAnimation {
-                                    viewModel.updateCity(city)
-                                    viewModel.dismiss()
-                                }
-                            }
-                        }
+                SearchBar(searchText: $viewModel.searchText)
+                    .focused($isTextFieldFocused)
+                    .onChange(of: viewModel.searchText) { newValue in
+                        viewModel.filterCities(with: newValue)
                     }
-                    .padding()
-                }
+                CityListView(viewModel: viewModel)
             }
             .background(Color.theme.searchColor)
             .onAppear {
                 viewModel.onAppear()
+                isTextFieldFocused = true
             }
         }
     }
@@ -65,11 +33,17 @@ struct SearchView: View {
 
 final class SearchViewModel: BaseViewModel {
     
-    @Published private(set) var selectedCity: City = .seoul
+    @Published private(set) var selectedCity: City = .asan
     @Published private(set) var cityLists: [City] = []
+    @Published private(set) var searchList: [City] = []
     
+    @Published var isLoadingPage: Bool = false
+    @Published var searchText: String = ""
+    
+    private var currentPage = 0
+    private let pageSize = 15
     private let weatherRepository: WeatherRepository
-    
+
     init(weatherRepository: WeatherRepository = RepositoryManager.weatherRepository) {
         self.weatherRepository = weatherRepository
         super.init()
@@ -79,7 +53,14 @@ final class SearchViewModel: BaseViewModel {
     override func configure() {
         weatherRepository.$isLoading
             .assign(to: &$isLoading)
-        
+
+        weatherRepository.$cityLists
+            .sink { [weak self] cityLists in
+                self?.cityLists = cityLists
+                self?.resetSearchList()
+            }
+            .store(in: &subscriptions)
+
         weatherRepository.$selectedCity
             .assign(to: &$selectedCity)
     }
@@ -89,11 +70,83 @@ final class SearchViewModel: BaseViewModel {
 extension SearchViewModel {
     
     func onAppear() {
-#warning("최근 검색 기록 불러오기")
+        currentPage = 0
+        resetSearchList()
+    }
+    
+    func loadMoreCitiesIfNeeded(currentItem: City? = nil) {
+        guard !isLoadingPage else {
+            return
+        }
+
+        if shouldLoadMore(currentItem: currentItem) {
+            isLoadingPage = true
+            let citiesToLoad = searchText.isEmpty ? cityLists : filterAndSortCities()
+            loadMore(from: citiesToLoad)
+        }
+    }
+    
+    func filterCities(with searchText: String) {
+        self.searchText = searchText
         
+        if searchText.isEmpty {
+            resetSearchList()
+        } else {
+            let filteredCities = filterAndSortCities()
+            searchList = Array(filteredCities.prefix(pageSize))
+            currentPage = 0
+        }
     }
     
     func updateCity(_ city: City) {
         weatherRepository.updateCity(city)
     }
+}
+
+// MARK: - Private Functions
+private extension SearchViewModel {
+    
+    private func resetSearchList() {
+        searchList = Array(cityLists.prefix(pageSize))
+    }
+    
+    private func filterAndSortCities() -> [City] {
+        return cityLists
+            .filter { $0.name.lowercased().contains(searchText.lowercased()) }
+            .sorted {
+                $0.name.lowercased().hasPrefix(searchText.lowercased()) && !$1.name.lowercased().hasPrefix(searchText.lowercased())
+            }
+    }
+    
+    private func shouldLoadMore(currentItem: City?) -> Bool {
+        guard let currentItem = currentItem else {
+            return false
+        }
+        
+        guard let index = searchList.firstIndex(where: { $0.id == currentItem.id }) else {
+            return false
+        }
+        
+        let shouldLoad = index >= searchList.endIndex - 5
+        return shouldLoad
+    }
+    
+    private func loadMore(from cities: [City]) {
+        let startIndex = searchList.count
+        let endIndex = min(startIndex + pageSize, cities.count)
+
+        if startIndex >= endIndex {
+            isLoadingPage = false
+            return
+        }
+
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
+            let newCities = Array(cities[startIndex..<endIndex])
+            DispatchQueue.main.async {
+                self.searchList.append(contentsOf: newCities)
+                self.isLoadingPage = false
+            }
+        }
+    }
+
 }

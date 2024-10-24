@@ -13,7 +13,12 @@ struct City: Codable, Sendable, Hashable {
     let name, country: String
     let coord: Coord
     
-    static let seoul: City = .init(id: 1850147, name: "Seoul", country: "KR", coord: .init(lon: 126.978, lat: 37.561))
+    static let asan: City = .init(id: 1839726, name: "Asan", country: "KR", coord: .init(lon: 127.004173, lat: 36.783611))
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(name)
+    }
 }
 
 // MARK: - Coord

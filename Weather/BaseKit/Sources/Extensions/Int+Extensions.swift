@@ -31,5 +31,13 @@ extension Int {
         dateFormatter.locale = Locale(identifier: "ko_KR")
         return dateFormatter.string(from: date)
     }
+    
+    public var formattedWithCommas: String {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        numberFormatter.maximumFractionDigits = 0
+
+        return numberFormatter.string(from: NSNumber(value: self)) ?? "-"
+    }
 }
 
