@@ -10,6 +10,8 @@ import SwiftUI
 struct SearchView: View {
     
     @StateObject var viewModel: SearchViewModel = SearchViewModel()
+
+    @State private var searchText: String = ""
     
     let cities = [
         City(id: 1, name: "Seoul", country: "KR", coord: Coord(lon: 127.97, lat: 36.56)),
@@ -24,26 +26,74 @@ struct SearchView: View {
     var body: some View {
         BaseView(viewModel: viewModel) {
             VStack(spacing: 0) {
-                SearchBar(searchText: .constant(""))
+                SearchBar(searchText: $searchText)
                 
                 ScrollView {
                     LazyVStack {
                         ForEach(cities, id: \.self) { city in
-                            Text(city.name)
-                                .foregroundStyle(.black)
-                                .onTapGesture {
-                                    withAnimation {
-                                        viewModel.dismiss()
-                                    }
+                            VStack(alignment: .leading ,spacing: 0) {
+                                Group {
+                                    Text(city.name)
+                                        .font(.headline)
+                                        .padding(.bottom, 2)
+                                    Text(city.country)
+                                        .font(.subheadline)
                                 }
+                                .foregroundStyle(.white)
+                                .padding(.bottom, 12)
+                                LineDivider()
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                withAnimation {
+                                    viewModel.updateCity(city)
+                                    viewModel.dismiss()
+                                }
+                            }
                         }
                     }
+                    .padding()
                 }
             }
-            .background(Color.theme.backgroundColor)
+            .background(Color.theme.searchColor)
+            .onAppear {
+                viewModel.onAppear()
+            }
         }
     }
 }
 
 final class SearchViewModel: BaseViewModel {
+    
+    @Published private(set) var selectedCity: City = .seoul
+    @Published private(set) var cityLists: [City] = []
+    
+    private let weatherRepository: WeatherRepository
+    
+    init(weatherRepository: WeatherRepository = RepositoryManager.weatherRepository) {
+        self.weatherRepository = weatherRepository
+        super.init()
+        configure()
+    }
+    
+    override func configure() {
+        weatherRepository.$isLoading
+            .assign(to: &$isLoading)
+        
+        weatherRepository.$selectedCity
+            .assign(to: &$selectedCity)
+    }
+}
+
+// MARK: - Public Functions
+extension SearchViewModel {
+    
+    func onAppear() {
+#warning("최근 검색 기록 불러오기")
+        
+    }
+    
+    func updateCity(_ city: City) {
+        weatherRepository.updateCity(city)
+    }
 }

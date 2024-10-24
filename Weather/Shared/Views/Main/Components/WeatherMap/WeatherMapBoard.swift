@@ -10,8 +10,7 @@ import MapKit
 
 struct WeatherMapBoard: View {
     
-    let lat: Double
-    let lon: Double
+    @StateObject var viewModel: MainViewModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -19,7 +18,7 @@ struct WeatherMapBoard: View {
                 .foregroundStyle(.white)
                 .fontSized(10)
                 .padding(.bottom, 8)
-            WeatherMapView(coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon))
+            WeatherMapView(viewModel: viewModel)
             .frame(height: 300)
         }
         .padding()

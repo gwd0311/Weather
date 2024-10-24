@@ -16,4 +16,5 @@ public struct ColorTheme : Sendable {
     public let backgroundColor = Color("backgroundColor")
     public let boardColor = Color("boardColor")
     public let lineColor = Color("lineColor")
+    public let searchColor = Color("searchColor")
 }

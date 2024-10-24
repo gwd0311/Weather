@@ -29,7 +29,7 @@ struct MainView: View {
                         TemperatureBoard(viewModel: viewModel)
                         HourlyForecastBoard(viewModel: viewModel)
                         FiveDaysForecast(viewModel: viewModel)
-                        WeatherMapBoard(lat: viewModel.lat, lon: viewModel.lon)
+                        WeatherMapBoard(viewModel: viewModel)
                         ClimateBoard(viewModel: viewModel)
                     }
                 }
