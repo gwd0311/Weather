@@ -5,16 +5,18 @@
 //  Created by hanjongwoo on 10/21/24.
 //
 
-//import PhotosKit
 import BaseKit
 import NetworkKit
 import SwiftUI
 
 final class WeatherRepository: BaseRepository {
     
+    @Published private(set) var selectedCity: City = .seoul
     @Published private(set) var currentWeather: WeatherData? = nil
+    
     @Published private(set) var dailyWeathers: [DailyWeatherData] = []
     @Published private(set) var hourlyWeathers: [WeatherData] = []
+    @Published private(set) var cityLists: [City] = []
     
     private let weatherService: WeatherServiceProtocol
     
@@ -51,7 +53,26 @@ extension WeatherRepository {
         }
     }
     
-    func setupInitialWeatherData() {
-        fetchWeatherData(lat: 36.783611, lon: 127.004173)
+    func setupWeatherData() {
+        fetchWeatherData(lat: selectedCity.coord.lat, lon: selectedCity.coord.lon)
+    }
+    
+    func setupCityList() {
+        setIsLoading(true)
+        Task { @MainActor in
+            let result = await self.weatherService.getCityList()
+            switch result {
+            case .success(let data):
+                self.cityLists = data
+                self.setIsLoading(false)
+            case .failure:
+                self.setIsLoading(false)
+            }
+        }
+    }
+    
+    func updateCity(_ city: City) {
+        selectedCity = city
+        setupWeatherData()
     }
 }

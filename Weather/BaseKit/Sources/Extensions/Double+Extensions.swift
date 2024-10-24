@@ -13,4 +13,12 @@ extension Double {
         Int(self - 273.15)
     }
     
+    public var formattedWithCommas: String {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        numberFormatter.maximumFractionDigits = 0
+
+        return numberFormatter.string(from: NSNumber(value: self)) ?? "-"
+    }
+    
 }

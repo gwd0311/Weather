@@ -9,25 +9,24 @@ import SwiftUI
 import BaseKit
 
 enum AppFullScreen {
-//    case photoDetail(photo: Photo, nameSpace: Namespace.ID)
+    case search
 }
 
 extension AppFullScreen: FullScreenPresentable {
     
     var id: String {
-//        switch self {
-//        case .photoDetail:
-//            "photoDetail"
-//        }
-        ""
+        switch self {
+        case .search:
+            "search"
+        }
     }
     
     @ViewBuilder
     var fullScreen: some View {
-//        switch self {
-//        case .photoDetail(let photo, let namespace):
-//            PhotoDetailView(photo: photo, namespace: namespace)
-//        }
+        switch self {
+        case .search:
+            SearchView()
+        }
         EmptyView()
     }
 }

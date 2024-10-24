@@ -9,15 +9,16 @@ import SwiftUI
 import BaseKit
 
 enum AppSheet {
-    case photoDetail(photo: Photo, namespace: Namespace.ID)
+//    case photoDetail(photo: Photo, namespace: Namespace.ID)
 }
 
 extension AppSheet: SheetPresentable {
     var id: String {
-        switch self {
-        case .photoDetail:
-            return "practicePreview"
-        }
+//        switch self {
+//        case .photoDetail:
+//            return "practicePreview"
+//        }
+        ""
     }
     
     var sheet: some View {

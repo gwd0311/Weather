@@ -15,34 +15,43 @@ struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
     
     var body: some View {
-        ZStack {
-            Color.theme.backgroundColor
-                .ignoresSafeArea()
-            ScrollView(showsIndicators: false) {
-                LazyVStack(spacing: 0) {
-                    TemperatureBoard(viewModel: viewModel)
-                    HourlyForecastBoard(viewModel: viewModel)
-                    FiveDaysForecast(viewModel: viewModel)
-                    WeatherMapBoard(lat: 36, lon: 127)
-                    
+        BaseView(viewModel: viewModel) {
+            ZStack {
+                Color.theme.backgroundColor
+                    .ignoresSafeArea()
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: 0) {
+                        SearchBar(searchText: .constant(""))
+                            .disabled(true)
+                            .onTapGesture {
+                                viewModel.presentFullScreen(.search)
+                            }
+                        TemperatureBoard(viewModel: viewModel)
+                        HourlyForecastBoard(viewModel: viewModel)
+                        FiveDaysForecast(viewModel: viewModel)
+                        WeatherMapBoard(lat: viewModel.lat, lon: viewModel.lon)
+                        ClimateBoard(viewModel: viewModel)
+                    }
                 }
             }
-        }
-        .onAppear() {
-            viewModel.onAppear()
+            .onAppear() {
+                viewModel.onAppear()
+            }
         }
     }
 }
 
 // MARK: - private View
 extension MainView {
-
+    
 }
 
 // MARK: - ViewModel
 final class MainViewModel: BaseViewModel {
     
+    @Published private(set) var selectedCity: City = .seoul
     @Published private(set) var currentWeather: WeatherData? = nil
+    
     @Published private(set) var dailyWeathers: [DailyWeatherData] = []
     @Published private(set) var hourlyWeathers: [WeatherData] = []
     
@@ -67,6 +76,10 @@ final class MainViewModel: BaseViewModel {
             .receive(on: DispatchQueue.main)
             .assign(to: &$dailyWeathers)
         
+        weatherRepository.$selectedCity
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$selectedCity)
+        
         weatherRepository.$isLoading
             .receive(on: DispatchQueue.main)
             .assign(to: &$isLoading)
@@ -89,14 +102,16 @@ final class MainViewModel: BaseViewModel {
 extension MainViewModel {
     
     // MARK: - TemperatureBoard
-#warning("도시이름 파싱하고 변경하기")
-    var cityName: String {
-        "Seoul"
-    }
+    /// 도시명
+    var cityName: String { selectedCity.name }
+    
+    /// 위도, 경도
+    var lat: Double { selectedCity.coord.lat }
+    var lon: Double { selectedCity.coord.lon }
     
     /// 현재 기온
     var weatherDescription: String {
-        currentWeather?.weather.first?.main.description ?? "날씨 정보 없음"
+        currentWeather?.weather.first?.main.description ?? "-"
     }
     
     /// 현재 날씨상태
@@ -177,13 +192,41 @@ extension MainViewModel {
     var dayMinTemp: [String] {
         dailyWeathers.map { $0.temp.min.kelvinToCelsius.description }
     }
+    
+    // MARK: - Climate Board
+    
+    /// 습도
+    var humidity: String {
+        currentWeather?.humidity.description ?? "-"
+    }
+    
+    /// 구름
+    var cloudiness: String {
+        currentWeather?.clouds.description ?? "-"
+    }
+    
+    /// 바람 속도
+    var windSpeed: String {
+        currentWeather?.windSpeed.description ?? "-"
+    }
+
+    /// 강풍
+    var windGust: String {
+        currentWeather?.windGust?.formattedWithCommas ?? "-"
+    }
+    
+    /// 기압
+    var pressure: String {
+        currentWeather?.pressure.description ?? "-"
+    }
 }
 
 // MARK: - Public Functions
 extension MainViewModel {
     
     func onAppear() {
-        weatherRepository.fetchWeatherData(lat: 36.77, lon: 127.37)
+        weatherRepository.setupWeatherData()
+        weatherRepository.setupCityList()
         CLLocationManager().requestWhenInUseAuthorization()
     }
     

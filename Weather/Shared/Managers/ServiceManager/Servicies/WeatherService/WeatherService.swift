@@ -7,6 +7,8 @@
 
 import Foundation
 import CoreLocation
+import NetworkKit
+import BaseKit
 
 private enum WeatherRequest {
     case getCurrentWeatherInfo(lat: Double, lon: Double, headers: HTTPHeaders)
@@ -53,24 +55,25 @@ extension WeatherRequest: Requestable {
     }
 }
 
-public protocol WeatherServiceProtocol: BaseServiceProtocol {
+protocol WeatherServiceProtocol: BaseServiceProtocol {
     func getCurrentWeatherInfo(lat: Double, lon: Double) async -> Result<WeatherResponse, NetworkError>
+    func getCityList() async -> Result<[City], AppError>
 }
 
-public final class WeatherService: WeatherServiceProtocol {
+final class WeatherService: WeatherServiceProtocol {
     
     private let client: RequestSendable
     private let locationManager = CLLocationManager()
 
-    public var headers: [String : String] {
+    var headers: [String : String] {
         return defaultHeaders
     }
     
-    public init(client: RequestSendable) {
+    init(client: RequestSendable) {
         self.client = client
     }
     
-    public func getCurrentWeatherInfo(lat: Double, lon: Double) async -> Result<WeatherResponse, NetworkError> {
+    func getCurrentWeatherInfo(lat: Double, lon: Double) async -> Result<WeatherResponse, NetworkError> {
                 
         let request: WeatherRequest = .getCurrentWeatherInfo(lat: lat, lon: lon, headers: headers)
         
@@ -80,8 +83,37 @@ public final class WeatherService: WeatherServiceProtocol {
             
             return .success(response)
         } catch {
-            print("Error decoding JSON: \(error)")
+            debug("Error decoding JSON: \(error)")
             return .failure(NetworkError.from(error))
+        }
+    }
+    
+    func getCityList() async -> Result<[City], AppError> {
+        guard let url1 = Bundle.main.url(forResource: "citylist1", withExtension: "json"),
+              let url2 = Bundle.main.url(forResource: "citylist2", withExtension: "json") else {
+            debug("One or both citylist.json files not found")
+            return .failure(.fetchCityListError)
+        }
+        
+        do {
+            async let data1 = Data(contentsOf: url1)
+            async let data2 = Data(contentsOf: url2)
+            
+            let (cityList1, cityList2) = try await (
+                JSONDecoder().decode([City].self, from: data1),
+                JSONDecoder().decode([City].self, from: data2)
+            )
+            
+            debug("City list 1: \(cityList1.count)")
+            debug("City list 2: \(cityList2.count)")
+            
+            let cityList = cityList1 + cityList2
+            debug("Successfully loaded city list with \(cityList.count) entries")
+            debug("CityListSample: \(cityList[0..<5])")
+            return .success(cityList)
+        } catch {
+            debug("Error decoding city lists: \(error)")
+            return .failure(.fetchCityListError)
         }
     }
 }

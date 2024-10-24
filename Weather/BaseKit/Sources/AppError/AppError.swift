@@ -10,9 +10,7 @@ import Foundation
 public enum AppError: Error {
     case unknown
     case unexpectedError(error: Error)
-    case photoLibraryPermissionDenied
-    case photoLibraryPermissionUnknown
-    case fetchPhotosError
+    case fetchCityListError
 }
 
 extension AppError: Throwable, LocalizedError {
@@ -26,12 +24,8 @@ extension AppError: Throwable, LocalizedError {
             return "Unknown Error"
         case .unexpectedError(let error):
             return error.localizedDescription
-        case .photoLibraryPermissionDenied:
-            return "Photos 라이브러리 권한이 거부되었습니다"
-        case .photoLibraryPermissionUnknown:
-            return "Photos 라이브러리 권한요청이 알수없는 이유로 실패하였습니다."
-        case .fetchPhotosError:
-            return "Photos 라이브러리 사진을 가져오는데 실패하였습니다."
+        case .fetchCityListError:
+            return "CityList를 가져오는데 실패하였습니다."
         }
     }
     

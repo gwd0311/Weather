@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import BaseKit
 
 public struct BaseResponse<T: Decodable>: Decodable {
     public let status: Bool

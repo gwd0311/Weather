@@ -7,7 +7,6 @@
 
 import Foundation
 import Combine
-import BaseKit
 
 public protocol RequestSendable {
     func send(request: Requestable) -> AnyPublisher<Data, Error>
